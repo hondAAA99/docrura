@@ -5,25 +5,47 @@ import { AuthService } from './auth.service.js';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('/signup')
-  async signUp() {}
+  async signUp() {
+    return "sign up succeed"
+  }
   @Post('/login')
-  async signIn() {}
+  async signIn() {
+    return "login succeed"
+  }
   @Post('/guest')
-  async registerGuest() {}
+  async registerGuest() {
+    return "register guest succeed"
+  }
   @Post('/guest/user')
-  async registerGuestAsUser() {}
+  async registerGuestAsUser() {
+    return "register guest as a user succeed"
+  }
   @Post('/signup/confirm')
-  async confirmEmail() {}
+  async confirmEmail() {
+    return "confirm email succeed"
+  }
   @Get('/refresh')
-  async refreshToken() {}
+  async refreshToken() {
+    return "refresh and access tokens"
+  }
   @Get('/logout')
-  async logout() {}
+  async logout() {
+    return "logout succeed"
+  }
   @Post('/forget-password')
-  async forgetPassword() {}
+  async forgetPassword() {
+    return "forget password succeed"
+  }
   @Post('/confirm-otp')
-  async confirmOTP() {}
+  async confirmOTP() {
+    return "confirm otp succeed"
+  }
   @Post('/resend-otp')
-  async resendOTP() {}
+  async resendOTP() {
+    return "resend otp succeed"
+  }
   @Get('/reset-password')
-  async resetPassword() {}
+  async resetPassword() {
+    return "reset password succeed"
+  }
 }
