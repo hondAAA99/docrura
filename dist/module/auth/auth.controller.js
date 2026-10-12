@@ -14,17 +14,39 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    async signUp() { }
-    async signIn() { }
-    async registerGuest() { }
-    async registerGuestAsUser() { }
-    async confirmEmail() { }
-    async refreshToken() { }
-    async logout() { }
-    async forgetPassword() { }
-    async confirmOTP() { }
-    async resendOTP() { }
-    async resetPassword() { }
+    async signUp() {
+        return "sign up succeed";
+    }
+    async signIn() {
+        return "login succeed";
+    }
+    async registerGuest() {
+        return "register guest succeed";
+    }
+    async registerGuestAsUser() {
+        return "register guest as a user succeed";
+    }
+    async confirmEmail() {
+        return "confirm email succeed";
+    }
+    async refreshToken() {
+        return "refresh and access tokens";
+    }
+    async logout() {
+        return "logout succeed";
+    }
+    async forgetPassword() {
+        return "forget password succeed";
+    }
+    async confirmOTP() {
+        return "confirm otp succeed";
+    }
+    async resendOTP() {
+        return "resend otp succeed";
+    }
+    async resetPassword() {
+        return "reset password succeed";
+    }
 };
 __decorate([
     Post('/signup'),

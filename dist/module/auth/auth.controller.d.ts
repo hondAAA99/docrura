@@ -2,15 +2,15 @@ import { AuthService } from './auth.service.js';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    signUp(): Promise<void>;
-    signIn(): Promise<void>;
-    registerGuest(): Promise<void>;
-    registerGuestAsUser(): Promise<void>;
-    confirmEmail(): Promise<void>;
-    refreshToken(): Promise<void>;
-    logout(): Promise<void>;
-    forgetPassword(): Promise<void>;
-    confirmOTP(): Promise<void>;
-    resendOTP(): Promise<void>;
-    resetPassword(): Promise<void>;
+    signUp(): Promise<string>;
+    signIn(): Promise<string>;
+    registerGuest(): Promise<string>;
+    registerGuestAsUser(): Promise<string>;
+    confirmEmail(): Promise<string>;
+    refreshToken(): Promise<string>;
+    logout(): Promise<string>;
+    forgetPassword(): Promise<string>;
+    confirmOTP(): Promise<string>;
+    resendOTP(): Promise<string>;
+    resetPassword(): Promise<string>;
 }
