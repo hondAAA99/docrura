@@ -7,12 +7,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../database/user.model.js';
+import { UsersRepo } from '../../common/repository/user.repo.js';
+import { messageQueueFactory } from '../../common/factories/messageQueue.factory.js';
+import { securityServices } from '../../common/services/security/security.service.js';
+import { ConfigService } from '@nestjs/config';
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
     Module({
         controllers: [AuthController],
-        providers: [AuthService],
+        providers: [AuthService, UsersRepo, securityServices, ConfigService],
+        imports: [TypeOrmModule.forFeature([User]), messageQueueFactory()],
     })
 ], AuthModule);
 export { AuthModule };

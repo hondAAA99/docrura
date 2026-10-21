@@ -1,8 +1,11 @@
 import { AuthService } from './auth.service.js';
+import { signUpDTO } from './validation/signUp.dto.js';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
-    signUp(): Promise<string>;
+    signUp(dto: signUpDTO): Promise<{
+        message: string;
+    }>;
     signIn(): Promise<string>;
     registerGuest(): Promise<string>;
     registerGuestAsUser(): Promise<string>;

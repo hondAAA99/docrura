@@ -7,51 +7,56 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Controller, Get, Post } from '@nestjs/common';
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
+import { signUpDTO } from './validation/signUp.dto.js';
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
     }
-    async signUp() {
-        return "sign up succeed";
+    async signUp(dto) {
+        return await this.authService.signUp(dto);
     }
     async signIn() {
-        return "login succeed";
+        return 'login succeed';
     }
     async registerGuest() {
-        return "register guest succeed";
+        return 'register guest succeed';
     }
     async registerGuestAsUser() {
-        return "register guest as a user succeed";
+        return 'register guest as a user succeed';
     }
     async confirmEmail() {
-        return "confirm email succeed";
+        return 'confirm email succeed';
     }
     async refreshToken() {
-        return "refresh and access tokens";
+        return 'refresh and access tokens';
     }
     async logout() {
-        return "logout succeed";
+        return 'logout succeed';
     }
     async forgetPassword() {
-        return "forget password succeed";
+        return 'forget password succeed';
     }
     async confirmOTP() {
-        return "confirm otp succeed";
+        return 'confirm otp succeed';
     }
     async resendOTP() {
-        return "resend otp succeed";
+        return 'resend otp succeed';
     }
     async resetPassword() {
-        return "reset password succeed";
+        return 'reset password succeed';
     }
 };
 __decorate([
     Post('/signup'),
+    __param(0, Body(new ValidationPipe())),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [signUpDTO]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signUp", null);
 __decorate([

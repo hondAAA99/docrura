@@ -1,7 +1,7 @@
 # compiled output
 /node_modules
 /build
-
+database_certificate.*
 # TypeScript build cache
 *.tsbuildinfo
 

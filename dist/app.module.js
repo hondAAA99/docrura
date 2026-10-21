@@ -6,11 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 import { ConfigModule } from '@nestjs/config';
 import { dataBaseFactory } from './common/factories/database.factory.js';
 import { AuthModule } from './module/auth/auth.module.js';
+import { redisFactory } from './common/factories/redis.factory.js';
+import { NotificationModule } from './module/notification/notification.module.js';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 let AppModule = class AppModule {
 };
@@ -26,7 +28,9 @@ AppModule = __decorate([
                 envFilePath: ['.env'],
             }),
             dataBaseFactory(),
+            redisFactory(),
             AuthModule,
+            NotificationModule,
         ],
         controllers: [AppController],
         providers: [AppService],
