@@ -15,7 +15,6 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [config.get('MESSAGE_BROKER_URI')],
-        
         queue: 'notification',
         queueOptions: {
           durable: true,

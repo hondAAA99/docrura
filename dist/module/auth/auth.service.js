@@ -10,21 +10,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
 import { UsersRepo } from '../../common/repository/user.repo.js';
 import { securityServices } from '../../common/services/security/security.service.js';
-import { userRoles } from '../../common/enum/user.base.enum.js';
+import { userProvider, userRoles } from '../../common/enum/user.base.enum.js';
 import { ClientProxy } from '@nestjs/microservices';
 import { messageEventsEnum } from '../../common/enum/messageEvents.enum.js';
 import { generateOTP } from './utils/generateOTP.js';
 import { emailKeyEnum } from '../../common/enum/emailSubject.enum.js';
+import { tokenService } from '../../common/services/jwt/tokenService.js';
+import { ConfigService } from '@nestjs/config';
 let AuthService = class AuthService {
     userRepo;
     _security;
+    _tokenService;
+    _configService;
     _messageQueue;
-    constructor(userRepo, _security, _messageQueue) {
+    constructor(userRepo, _security, _tokenService, _configService, _messageQueue) {
         this.userRepo = userRepo;
         this._security = _security;
+        this._tokenService = _tokenService;
+        this._configService = _configService;
         this._messageQueue = _messageQueue;
     }
     async signUp(dto) {
@@ -63,7 +69,66 @@ let AuthService = class AuthService {
             message: 'please confirm your email',
         };
     }
-    async signIn() { }
+    async signIn(dto) {
+        const { email, password } = dto;
+        const User = await this.userRepo.findOne({ email });
+        if (!User)
+            throw new NotFoundException('email not found');
+        if (this._security.GlobalCompare(password, User?.password))
+            throw new UnauthorizedException('please check your email or password');
+        const accessToken = this._tokenService.generateToken({
+            userId: User.id,
+            userRole: User.role,
+        }, 1000 * 60 * 60 * 8, this._configService.get('USER_ACCESS_SECRET'));
+        const refreshToken = this._tokenService.generateToken({
+            userId: User.id,
+            userRole: User.role,
+        }, 1000 * 60 * 60 * 24 * 10, this._configService.get('USER_REFRESH_SECRET'));
+        return {
+            accessToken,
+            refreshToken,
+        };
+    }
+    async validateGoogleProfile(profile) {
+        const email = profile.emails?.[0]?.value;
+        if (!email || profile.emails?.[0]?.verified !== true) {
+            throw new ConflictException('A verified Google email is required');
+        }
+        const existingEmail = await this.userRepo.findOne({
+            email,
+        });
+        if (existingEmail) {
+            if (existingEmail.provider == userProvider.google)
+                return existingEmail;
+            throw new ConflictException('An account with this email already exists. Sign in using your existing method and link Google securely.');
+        }
+        let user = this.userRepo.create({
+            email,
+            name: profile.displayName,
+            confirm: true,
+            provider: userProvider.google,
+        });
+        return this.userRepo.save(user);
+    }
+    async signInWithGoogle(user) {
+        let accessToken, refreshToken;
+        if (!user.emails || !user.emails[0].value)
+            throw new ConflictException();
+        const existingUser = await this.userRepo.findOne({
+            email: user.emails[0].value,
+        });
+        if (!existingUser)
+            throw new NotFoundException();
+        accessToken = this._tokenService.generateToken({
+            userId: existingUser.id,
+            userRole: existingUser.role,
+        }, 1000 * 60 * 60 * 8, this._configService.get('USER_ACCESS_SECRET'));
+        refreshToken = this._tokenService.generateToken({
+            userId: existingUser.id,
+            userRole: existingUser.role,
+        }, 1000 * 60 * 60 * 24 * 10, this._configService.get('USER_REFRESH_SECRET'));
+        return { accessToken, refreshToken };
+    }
     async registerGuest() { }
     async registerGuestAsUser() { }
     async confirmEmail() { }
@@ -76,9 +141,11 @@ let AuthService = class AuthService {
 };
 AuthService = __decorate([
     Injectable(),
-    __param(2, Inject('NOTIFICATION_SERVICE')),
+    __param(4, Inject('NOTIFICATION_SERVICE')),
     __metadata("design:paramtypes", [UsersRepo,
         securityServices,
+        tokenService,
+        ConfigService,
         ClientProxy])
 ], AuthService);
 export { AuthService };

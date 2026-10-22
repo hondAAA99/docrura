@@ -1,6 +1,18 @@
-import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { signUpDTO } from './validation/signUp.dto.js';
+import { signInDTO } from './validation/signin.dto.js';
+import { GoogleAuthGuard } from '../../common/guard/google.guard.js';
+import type { googleProfileType } from '../../common/types/googleStrategy.type.js';
+import { User } from '../../common/decorators/user.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -10,9 +22,20 @@ export class AuthController {
     return await this.authService.signUp(dto);
   }
   @Post('/login')
-  async signIn() {
-    return 'login succeed';
+  async signIn(@Body(new ValidationPipe()) dto: signInDTO) {
+    return await this.authService.signIn(dto);
   }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async signInWithGoogle() {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async signInWithGoogleCallBack(@User() user: googleProfileType) {
+    return await this.authService.signInWithGoogle(user);
+  }
+
   @Post('/guest')
   async registerGuest() {
     return 'register guest succeed';

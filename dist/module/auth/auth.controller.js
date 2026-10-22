@@ -10,9 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, ValidationPipe, } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { signUpDTO } from './validation/signUp.dto.js';
+import { signInDTO } from './validation/signin.dto.js';
+import { GoogleAuthGuard } from '../../common/guard/google.guard.js';
+import { User } from '../../common/decorators/user.decorator.js';
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -21,8 +24,12 @@ let AuthController = class AuthController {
     async signUp(dto) {
         return await this.authService.signUp(dto);
     }
-    async signIn() {
-        return 'login succeed';
+    async signIn(dto) {
+        return await this.authService.signIn(dto);
+    }
+    async signInWithGoogle() { }
+    async signInWithGoogleCallBack(user) {
+        return await this.authService.signInWithGoogle(user);
     }
     async registerGuest() {
         return 'register guest succeed';
@@ -61,10 +68,26 @@ __decorate([
 ], AuthController.prototype, "signUp", null);
 __decorate([
     Post('/login'),
+    __param(0, Body(new ValidationPipe())),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [signInDTO]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "signIn", null);
+__decorate([
+    Get('google'),
+    UseGuards(GoogleAuthGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "signIn", null);
+], AuthController.prototype, "signInWithGoogle", null);
+__decorate([
+    Get('google/callback'),
+    UseGuards(GoogleAuthGuard),
+    __param(0, User()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "signInWithGoogleCallBack", null);
 __decorate([
     Post('/guest'),
     __metadata("design:type", Function),
