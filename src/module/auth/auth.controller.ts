@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Headers,
   Post,
+  Query,
   Req,
   UseGuards,
   ValidationPipe,
@@ -13,6 +16,14 @@ import { signInDTO } from './validation/signin.dto.js';
 import { GoogleAuthGuard } from '../../common/guard/google.guard.js';
 import type { googleProfileType } from '../../common/types/googleStrategy.type.js';
 import { User } from '../../common/decorators/user.decorator.js';
+import { registerGuestAsUserDTO } from './validation/registerGuestAsUser.dto.js';
+import { authenticationGuard } from '../../common/guard/authentication/authentication.guard.js';
+import { User as UserModel } from '../../database/user.model.js';
+import { confirmEmailDTO } from './validation/confirmEmail.dto.js';
+import { type Request } from 'express';
+import { forgetPasswordDTO } from './validation/forgetPassword.dto.js';
+import { resetPasswordDTO } from './validation/resetPassword.dto.js';
+import { userTokenEnum } from '../../common/enum/user.base.enum.js';
 
 @Controller('auth')
 export class AuthController {
@@ -38,38 +49,62 @@ export class AuthController {
 
   @Post('/guest')
   async registerGuest() {
-    return 'register guest succeed';
+    return this.authService.registerGuest();
   }
+
+  @authenticationGuard(userTokenEnum.access)
   @Post('/guest/user')
-  async registerGuestAsUser() {
-    return 'register guest as a user succeed';
+  async registerGuestAsUser(
+    @Body(new ValidationPipe()) dto: registerGuestAsUserDTO,
+    @User() user: UserModel,
+  ) {
+    return this.authService.registerGuestAsUser(user.id, dto);
   }
   @Post('/signup/confirm')
-  async confirmEmail() {
-    return 'confirm email succeed';
+  async confirmEmail(@Body(new ValidationPipe()) dto: confirmEmailDTO) {
+    return this.authService.confirmEmail(dto);
   }
+
   @Get('/refresh')
-  async refreshToken() {
-    return 'refresh and access tokens';
+  async refreshToken(
+    @Headers('authorization')
+    authorization: string,
+  ) {
+    if (!authorization)
+      throw new BadRequestException('can not find authorization header');
+    return this.authService.refreshToken(authorization);
   }
+
+  @authenticationGuard(userTokenEnum.refresh)
   @Get('/logout')
-  async logout() {
-    return 'logout succeed';
+  async logout(
+    @User() user: UserModel,
+    @Req() req: Request,
+    @Query('flag') flag: string,
+  ) {
+    const TokenDecode = req.decode;
+    if (!TokenDecode) throw new BadRequestException('invalid token');
+    return this.authService.logout(user, TokenDecode, flag);
   }
   @Post('/forget-password')
-  async forgetPassword() {
-    return 'forget password succeed';
+  async forgetPassword(@Body(new ValidationPipe()) dto: forgetPasswordDTO) {
+    return this.authService.forgetPassword(dto);
   }
   @Post('/confirm-otp')
-  async confirmOTP() {
-    return 'confirm otp succeed';
+  async confirmOTP(@Body(new ValidationPipe()) dto: confirmEmailDTO) {
+    return this.authService.confirmOTP(dto);
   }
   @Post('/resend-otp')
-  async resendOTP() {
-    return 'resend otp succeed';
+  async resendOTP(@Body(new ValidationPipe()) dto: forgetPasswordDTO) {
+    return this.authService.resendOTP(dto);
   }
+
+  @authenticationGuard(userTokenEnum.access)
   @Get('/reset-password')
-  async resetPassword() {
-    return 'reset password succeed';
+  async resetPassword(
+    @Body(new ValidationPipe()) dto: resetPasswordDTO,
+    @User() user: UserModel,
+  ) {
+    return this.authService.resetPassword(user, dto);
   }
 }

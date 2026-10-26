@@ -6,7 +6,8 @@ import crypto from 'node:crypto';
 export class securityServices {
   constructor(private readonly configService: ConfigService) {}
   globalHash(plainText: string) {
-    return hashSync(plainText, 10).toString();
+    let hashedText = hashSync(plainText, 10).toString();
+    return hashedText;
   }
   GlobalCompare(plainText: string, hashText: string) {
     return compareSync(plainText, hashText);

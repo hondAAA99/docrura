@@ -10,19 +10,29 @@ import { ConfigService } from '@nestjs/config';
 import { tokenService } from '../../common/services/jwt/tokenService.js';
 import { JwtService } from '@nestjs/jwt';
 import { GoogleAuthGuard } from '../../common/guard/google.guard.js';
+import { revokeToken } from '../../database/revokeToken.model.js';
+import { revokeTokensRepo } from '../../common/repository/revokeToken.repo.js';
+import redisService from '../../common/services/redis/redis.service.js';
+import { GoogleStrategy } from '../../common/services/passport/google.passport.js';
 
 @Module({
   controllers: [AuthController],
   providers: [
     AuthService,
     UsersRepo,
+    revokeTokensRepo,
     securityServices,
     ConfigService,
     tokenService,
     JwtService,
     ConfigService,
-    GoogleAuthGuard
+    GoogleAuthGuard,
+    GoogleStrategy,
+    redisService,
   ],
-  imports: [TypeOrmModule.forFeature([User]), messageQueueFactory()],
+  imports: [
+    TypeOrmModule.forFeature([User, revokeToken]),
+    messageQueueFactory(),
+  ],
 })
 export class AuthModule {}

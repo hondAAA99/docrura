@@ -9,15 +9,16 @@ import {
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column('varchar', { nullable: false })
+  @Column('varchar', { nullable: true })
   name!: string;
-  @Column('varchar', { nullable: false, unique: true })
+  @Column('varchar', { unique: true, nullable: true })
   email!: string;
   @Column('varchar', { nullable: true })
   password!: string;
   @Column('enum', {
     enum: userGender,
     default: userGender.female,
+    nullable: true,
   })
   gender!: string;
   @Column('enum', {
@@ -27,10 +28,12 @@ export class User {
   role!: string;
   @Column('boolean', { default: false })
   confirm!: boolean;
-  @Column('varchar', { unique: true })
+  @Column('varchar', { unique: true, nullable: true })
   phone_number!: string;
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   age!: string;
   @Column('enum', { enum: userProvider, default: userProvider.system })
   provider!: string;
+  @Column('date', { nullable: true })
+  credentials: Date;
 }

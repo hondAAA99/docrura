@@ -10,12 +10,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Injectable } from '@nestjs/common';
 import redisService from '../../common/services/redis/redis.service.js';
 import { emailService } from '../../common/services/mailer/email.service.js';
+import { securityServices } from '../../common/services/security/security.service.js';
 let NotificationService = class NotificationService {
     _redisService;
     _emailService;
-    constructor(_redisService, _emailService) {
+    _security;
+    constructor(_redisService, _emailService, _security) {
         this._redisService = _redisService;
         this._emailService = _emailService;
+        this._security = _security;
     }
     async email(messageData) {
         const { data, email, subject } = messageData;
@@ -25,7 +28,7 @@ let NotificationService = class NotificationService {
                     filter: email,
                     subject,
                 }),
-                value: data.toString(),
+                value: this._security.globalHash(data.toString()),
                 ttl: 3 * 60,
             });
             await this._emailService.sendEmail({
@@ -43,7 +46,8 @@ let NotificationService = class NotificationService {
 NotificationService = __decorate([
     Injectable(),
     __metadata("design:paramtypes", [redisService,
-        emailService])
+        emailService,
+        securityServices])
 ], NotificationService);
 export { NotificationService };
 //# sourceMappingURL=notification.service.js.map

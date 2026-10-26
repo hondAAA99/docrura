@@ -30,13 +30,8 @@ let GoogleStrategy = class GoogleStrategy extends PassportStrategy(Strategy, pas
         return await this._authService.validateGoogleProfile({
             id: profile.id,
             displayName: profile.displayName,
-            emails: profile.emails?.map((email) => ({
-                value: email.value,
-                verified: email.verified,
-            })),
-            photos: profile.photos?.map((photo) => ({
-                value: photo.value,
-            })),
+            email: profile.emails?.map((email) => email.value)[0],
+            photo: profile.photos?.map((photo) => photo.value)[0],
         });
     }
 };

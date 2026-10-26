@@ -17,8 +17,8 @@ export abstract class baseRepo<T extends ObjectLiteral> {
     options?: FindOneOptions<T>,
   ) {
     return await this.repository.findOne({
-      ...options,
       where,
+      ...options,
       ...(select ? { select } : {}),
     });
   }
@@ -30,8 +30,8 @@ export abstract class baseRepo<T extends ObjectLiteral> {
   async save(data: DeepPartial<T>) {
     return await this.repository.save(data);
   }
-  async update(id: FindOptionsWhere<T>, data: Partial<T>) {
-    return await this.repository.update(id, { ...data });
+  async update(filter: FindOptionsWhere<T>, data: Partial<T>) {
+    return await this.repository.update(filter, { ...data });
   }
 
   async delete(where: FindOptionsWhere<T> | FindOptionsWhere<T>[]) {

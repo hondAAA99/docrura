@@ -6,7 +6,10 @@ import { AuthService } from '../../../module/auth/auth.service.js';
 import { passportClientEnum } from '../../enum/passport.enum.js';
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, passportClientEnum.google) {
+export class GoogleStrategy extends PassportStrategy(
+  Strategy,
+  passportClientEnum.google,
+) {
   constructor(
     private readonly configService: ConfigService,
     private readonly _authService: AuthService,
@@ -23,13 +26,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, passportClientEnu
     return await this._authService.validateGoogleProfile({
       id: profile.id,
       displayName: profile.displayName,
-      emails: profile.emails?.map((email) => ({
-        value: email.value,
-        verified: (email as { verified?: boolean }).verified,
-      })),
-      photos: profile.photos?.map((photo) => ({
-        value: photo.value,
-      })),
+      email: profile.emails?.map((email) => email.value)[0]!,
+      photo: profile.photos?.map((photo) => photo.value)[0]!,
     });
   }
 }

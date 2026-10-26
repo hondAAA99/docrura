@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { emailEventData } from '../../common/types/emailEventData.type.js';
 import redisService from '../../common/services/redis/redis.service.js';
 import { emailService } from '../../common/services/mailer/email.service.js';
+import { securityServices } from '../../common/services/security/security.service.js';
 
 @Injectable()
 export class NotificationService {
   constructor(
     private readonly _redisService: redisService,
     private readonly _emailService: emailService,
+    private readonly _security: securityServices,
   ) {}
 
   async email(messageData: emailEventData) {
@@ -20,7 +22,7 @@ export class NotificationService {
           filter: email,
           subject,
         }),
-        value: data.toString(),
+        value: this._security.globalHash(data.toString()),
         ttl: 3 * 60,
       });
 

@@ -1,4 +1,4 @@
 export function generateOTP() {
-    return (Math.ceil(Math.random() * 10000)).toString();
+    return Math.floor(10000 + Math.random() * 90000).toString();
 }
 //# sourceMappingURL=generateOTP.js.map

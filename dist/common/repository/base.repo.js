@@ -5,8 +5,8 @@ export class baseRepo {
     }
     async findOne(where, select, options) {
         return await this.repository.findOne({
-            ...options,
             where,
+            ...options,
             ...(select ? { select } : {}),
         });
     }
@@ -16,8 +16,8 @@ export class baseRepo {
     async save(data) {
         return await this.repository.save(data);
     }
-    async update(id, data) {
-        return await this.repository.update(id, { ...data });
+    async update(filter, data) {
+        return await this.repository.update(filter, { ...data });
     }
     async delete(where) {
         return await this.repository.delete(where);

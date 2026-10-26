@@ -1,1 +1,1 @@
-export declare function dataBaseFactory(): import("@nestjs/common").DynamicModule;
+export declare function dataBaseFactory(): Promise<import("@nestjs/common").DynamicModule>;

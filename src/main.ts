@@ -25,8 +25,8 @@ async function bootstrap() {
       console.log('connected to message broker');
     });
 
-  app.startAllMicroservices();
-  app.use(cors());
+  await app.startAllMicroservices();
+  app.enableCors()
 
   const port = process.env.PORT ?? 8000;
 

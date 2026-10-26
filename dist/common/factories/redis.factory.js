@@ -25,7 +25,9 @@ RedisClientModule = __decorate([
                     client.on('error', (err) => {
                         console.error('Redis Client Error:', err);
                     });
-                    await client.connect();
+                    await client
+                        .connect()
+                        .then(() => console.log('cache server is running '));
                     return client;
                 },
             },

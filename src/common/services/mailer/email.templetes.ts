@@ -30,7 +30,7 @@ export const emailTemplate = (otp: number) => {
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="background: linear-gradient(135deg, #6c63ff, #ff6584); border-radius:12px; padding:10px 18px;">
-                    <span style="font-family:'Space Mono', monospace; font-size:18px; font-weight:700; color:#ffffff; letter-spacing:2px;">SARAHA</span>
+                    <span style="font-family:'Space Mono', monospace; font-size:18px; font-weight:700; color:#ffffff; letter-spacing:2px;">DOCURA</span>
                   </td>
                 </tr>
               </table>
@@ -71,7 +71,7 @@ export const emailTemplate = (otp: number) => {
                 <tr>
                   <td style="background-color:#1a1020; border-left:3px solid #ff6584; border-radius:0 8px 8px 0; padding:14px 16px;">
                     <p style="margin:0; font-size:13px; color:#9d7a8a; line-height:1.5;">
-                      🔒 &nbsp;Never share this code with anyone. Saraha will <strong style="color:#ff6584;">never</strong> ask for it via phone or chat.
+                      🔒 &nbsp;Never share this code with anyone. DOCURA will <strong style="color:#ff6584;">never</strong> ask for it via phone or chat.
                     </p>
                   </td>
                 </tr>
@@ -96,7 +96,7 @@ export const emailTemplate = (otp: number) => {
                 If you didn't request this code, you can safely ignore this email. No action is needed.
               </p>
               <p style="margin:0; font-size:12px; color:#3d3d5c;">
-                &copy; 2025 Saraha &nbsp;&middot;&nbsp;
+                &copy; 2025 DOCURA &nbsp;&middot;&nbsp;
                 <a href="#" style="color:#6c63ff; text-decoration:none;">Unsubscribe</a> &nbsp;&middot;&nbsp;
                 <a href="#" style="color:#6c63ff; text-decoration:none;">Privacy Policy</a>
               </p>

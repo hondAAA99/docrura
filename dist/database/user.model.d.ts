@@ -9,4 +9,5 @@ export declare class User {
     phone_number: string;
     age: string;
     provider: string;
+    credentials: Date;
 }

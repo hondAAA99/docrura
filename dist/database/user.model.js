@@ -20,17 +20,18 @@ let User = class User {
     phone_number;
     age;
     provider;
+    credentials;
 };
 __decorate([
     PrimaryGeneratedColumn('uuid'),
     __metadata("design:type", String)
 ], User.prototype, "id", void 0);
 __decorate([
-    Column('varchar', { nullable: false }),
+    Column('varchar', { nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
-    Column('varchar', { nullable: false, unique: true }),
+    Column('varchar', { unique: true, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
@@ -41,6 +42,7 @@ __decorate([
     Column('enum', {
         enum: userGender,
         default: userGender.female,
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "gender", void 0);
@@ -56,17 +58,21 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "confirm", void 0);
 __decorate([
-    Column('varchar', { unique: true }),
+    Column('varchar', { unique: true, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "phone_number", void 0);
 __decorate([
-    Column('varchar'),
+    Column('varchar', { nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "age", void 0);
 __decorate([
     Column('enum', { enum: userProvider, default: userProvider.system }),
     __metadata("design:type", String)
 ], User.prototype, "provider", void 0);
+__decorate([
+    Column('date', { nullable: true }),
+    __metadata("design:type", Date)
+], User.prototype, "credentials", void 0);
 User = __decorate([
     Entity('users')
 ], User);

@@ -17,7 +17,8 @@ let securityServices = class securityServices {
         this.configService = configService;
     }
     globalHash(plainText) {
-        return hashSync(plainText, 10).toString();
+        let hashedText = hashSync(plainText, 10).toString();
+        return hashedText;
     }
     GlobalCompare(plainText, hashText) {
         return compareSync(plainText, hashText);

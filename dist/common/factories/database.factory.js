@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../database/user.model.js';
-export function dataBaseFactory() {
+export async function dataBaseFactory() {
     return TypeOrmModule.forRootAsync({
         imports: [ConfigModule],
         inject: [ConfigService],
