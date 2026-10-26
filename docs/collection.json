@@ -1,0 +1,694 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6",
+    "name": "Docura Server API",
+    "description": "Postman Collection for Docura Server NestJS + TypeORM backend.\nCovers all HTTP controllers: AppController and AuthController.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health / Root",
+      "item": [
+        {
+          "name": "Get Hello",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "**Purpose**: Basic service health check / greeting.\n\n**Auth/Role**: None (Public).\n\n**Preconditions**: Server running.\n\n**Expected Status**: 200 OK."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body is Hello World!\", function () {",
+                  "    pm.expect(pm.response.text()).to.include(\"Hello World!\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "1. Sign Up",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{userName}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"phone_number\": \"{{userPhone}}\",\n  \"gender\": \"{{userGender}}\",\n  \"age\": \"{{userAge}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "**Purpose**: Register a new user account with system credentials and trigger OTP email.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (signUpDTO):\n- `name`: string, not empty\n- `email`: valid email string, not empty\n- `password`: string, not empty\n- `phone_number`: string, not empty\n- `gender`: enum `userGender` ('male' | 'female'), not empty\n- `age`: string, not empty\n\n**Preconditions**: Email and phone number must not already be confirmed/registered.\n\n**Expected Status**: 201 Created.\n\n**Response**: `{\"message\": \"please confirm your email\"}`"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Returns confirmation prompt message\", function () {",
+                  "        pm.expect(res.message).to.be.a('string');",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse signup response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Confirm Email (Sign Up OTP)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"otp\": \"{{otpCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "confirm"]
+            },
+            "description": "**Purpose**: Confirm user registration using OTP sent via email/RabbitMQ.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (confirmEmailDTO):\n- `email`: valid email, not empty\n- `otp`: string, exactly 5 characters (`@Length(5, 5)`), not empty\n\n**Preconditions**: Step 1 (Sign Up) has run and OTP has been obtained from Redis cache (`confirm-sign-up::<email>`) or email inbox and set into `{{otpCode}}`.\n\n**Expected Status**: 201 Created.\n\n**Response**: `{\"message\": \"email confirmed\"}`"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Email confirmed successfully\", function () {",
+                  "        pm.expect(res.message).to.eql(\"email confirmed\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse confirm email response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Sign In (Login)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "**Purpose**: Authenticate using email and password to receive JWT access and refresh tokens.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (signInDTO):\n- `email`: valid email, not empty\n- `password`: string, not empty\n\n**Preconditions**: User registered and confirmed.\n\n**Expected Status**: 201 Created.\n\n**Captures**: `accessToken` and `refreshToken` into Postman environment."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    if (res && res.accessToken) {",
+                  "        pm.environment.set(\"accessToken\", res.accessToken);",
+                  "    }",
+                  "    if (res && res.refreshToken) {",
+                  "        pm.environment.set(\"refreshToken\", res.refreshToken);",
+                  "    }",
+                  "    pm.test(\"Captured accessToken and refreshToken\", function () {",
+                  "        pm.expect(res).to.have.property('accessToken');",
+                  "        pm.expect(res).to.have.property('refreshToken');",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse login response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Refresh Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "bearer {{refreshToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "**Purpose**: Issue a new pair of access and refresh tokens using an unrevoked refresh token in the `authorization` header.\n\n**Auth/Role**: Requires valid refresh token in `authorization` header (`bearer <refreshToken>`). Note that it revokes the old refresh token in the database upon rotation.\n\n**Preconditions**: Step 3 (Sign In) or Step 8 (Register Guest) completed to obtain a valid `refreshToken`.\n\n**Expected Status**: 200 OK.\n\n**Captures**: Updates `accessToken` and `refreshToken` in the environment."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    if (res && res.accessToken) {",
+                  "        pm.environment.set(\"accessToken\", res.accessToken);",
+                  "    }",
+                  "    if (res && res.refreshToken) {",
+                  "        pm.environment.set(\"refreshToken\", res.refreshToken);",
+                  "    }",
+                  "    pm.test(\"Updated tokens on refresh\", function () {",
+                  "        pm.expect(res).to.have.property('accessToken');",
+                  "        pm.expect(res).to.have.property('refreshToken');",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse refresh token response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Forget Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forget-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forget-password"]
+            },
+            "description": "**Purpose**: Request password reset OTP for an existing user account.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (forgetPasswordDTO):\n- `email`: valid email, not empty\n\n**Preconditions**: Account with this email must exist in the database.\n\n**Expected Status**: 201 Created.\n\n**Response**: `{\"message\": \"an otp has sent to your email\"}`"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Returns OTP sent message\", function () {",
+                  "        pm.expect(res.message).to.eql(\"an otp has sent to your email\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse forget password response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Resend OTP",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-otp"]
+            },
+            "description": "**Purpose**: Resend password reset OTP with rate limiting / attempt tracking in Redis.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (forgetPasswordDTO):\n- `email`: valid email, not empty\n\n**Preconditions**: Account exists and user is not currently blocked by rate limiting.\n\n**Expected Status**: 201 Created."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Returns OTP resent message\", function () {",
+                  "        pm.expect(res.message).to.eql(\"an otp has sent to your email\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse resend OTP response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Confirm OTP (Password Reset OTP Verification)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"otp\": \"{{otpCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/confirm-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "confirm-otp"]
+            },
+            "description": "**Purpose**: Verify the OTP code for password reset and receive fresh session tokens.\n\n**Auth/Role**: Public.\n\n**Validation Requirements** (confirmEmailDTO):\n- `email`: valid email, not empty\n- `otp`: string, exactly 5 chars, not empty\n\n**Preconditions**: Forget password OTP requested and retrieved into `{{otpCode}}`.\n\n**Expected Status**: 201 Created.\n\n**Captures**: Updates `accessToken` and `refreshToken`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    if (res && res.accessToken) {",
+                  "        pm.environment.set(\"accessToken\", res.accessToken);",
+                  "    }",
+                  "    if (res && res.refreshToken) {",
+                  "        pm.environment.set(\"refreshToken\", res.refreshToken);",
+                  "    }",
+                  "    pm.test(\"Tokens returned on OTP confirmation\", function () {",
+                  "        pm.expect(res).to.have.property('accessToken');",
+                  "        pm.expect(res).to.have.property('refreshToken');",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse confirm OTP response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{tokenBearer}} {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{newPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "**Purpose**: Reset user password to a new value.\n\n**Note**: The controller route is defined with `@Get('/reset-password')` but expects a JSON request body `resetPasswordDTO` with `@Body() dto: resetPasswordDTO`.\n\n**Auth/Role**: Authenticated via `@authenticationGuard()`. Requires `authorization: {{tokenBearer}} {{accessToken}}`.\n\n**Validation Requirements** (resetPasswordDTO):\n- `password`: string\n\n**Preconditions**: Valid authenticated user session (`accessToken`). Note: see README regarding `req.user` in `tokenVerificationGuard`.\n\n**Expected Status**: 200 OK."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Password reset message\", function () {",
+                  "        pm.expect(res.message).to.eql(\"password updated\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse reset password response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Register Guest",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/guest",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "guest"]
+            },
+            "description": "**Purpose**: Create an anonymous guest user account with role `guest` and return guest JWT tokens.\n\n**Auth/Role**: Public.\n\n**Preconditions**: None.\n\n**Expected Status**: 201 Created.\n\n**Captures**: `guestAccessToken` and `guestRefreshToken`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    if (res && res.accessToken) {",
+                  "        pm.environment.set(\"guestAccessToken\", res.accessToken);",
+                  "    }",
+                  "    if (res && res.refreshToken) {",
+                  "        pm.environment.set(\"guestRefreshToken\", res.refreshToken);",
+                  "    }",
+                  "    pm.test(\"Guest tokens created\", function () {",
+                  "        pm.expect(res).to.have.property('accessToken');",
+                  "        pm.expect(res).to.have.property('refreshToken');",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse guest registration response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Register Guest as User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{tokenBearer}} {{guestAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Converted Guest\",\n  \"email\": \"{{guestConvertedEmail}}\",\n  \"password\": \"GuestPassword123!\",\n  \"phone_number\": \"{{guestConvertedPhone}}\",\n  \"gender\": \"male\",\n  \"age\": \"1998-03-22\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/guest/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "guest", "user"]
+            },
+            "description": "**Purpose**: Upgrade an authenticated guest user into a registered user.\n\n**Auth/Role**: Authenticated via `@authenticationGuard()`. Requires `authorization: {{tokenBearer}} {{guestAccessToken}}`.\n\n**Validation Requirements** (registerGuestAsUserDTO):\n- `name`: string, not empty\n- `password`: string, not empty\n- `email`: valid email, not empty\n- `age`: date string (`@IsDateString`)\n- `gender`: enum `userGender` ('male' | 'female')\n- `phone_number`: string\n\n**Preconditions**: Step 9 (Register Guest) completed to obtain `guestAccessToken`.\n\n**Expected Status**: 201 Created."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Email confirmation prompt returned\", function () {",
+                  "        pm.expect(res.message).to.eql(\"please confirm your email\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse guest conversion response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Google OAuth Initiate",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google"]
+            },
+            "description": "**Purpose**: Initiates Google OAuth2 login flow using Passport strategy (redirects browser to Google Accounts sign-in page).\n\n**Auth/Role**: Public.\n\n**Preconditions**: Google OAuth client ID and Secret configured in environment.\n\n**Expected Status**: 302 Found (Redirect to Google OAuth consent screen)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 302 (OAuth redirect)\", function () {",
+                  "    pm.expect([200, 302]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12. Google OAuth Callback",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google", "callback"]
+            },
+            "description": "**Purpose**: Callback handler receiving Google OAuth response from Google authorization server.\n\n**Auth/Role**: Protected by `GoogleAuthGuard`.\n\n**Preconditions**: Must be called by Google with valid OAuth authorization code query parameters, or mocked.\n\n**Expected Status**: 200 OK (when invoked via successful OAuth callback)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Google callback handled\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13. Logout (Single Session)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{tokenBearer}} {{refreshToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "**Purpose**: Log out the current session and revoke tokens in the `revokeToken` database table.\n\n**Auth/Role**: Authenticated via `@authenticationGuard()`. Requires `authorization: {{tokenBearer}} {{refreshToken}}`.\n\n**Preconditions**: Active valid session.\n\n**Expected Status**: 200 OK.\n\n**Response**: `{\"message\": \"logout succeed\"}`"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "try {",
+                  "    var res = pm.response.json();",
+                  "    pm.test(\"Logout succeeded message\", function () {",
+                  "        pm.expect(res.message).to.eql(\"logout succeed\");",
+                  "    });",
+                  "} catch (e) {",
+                  "    console.error(\"Failed to parse logout response:\", e);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14. Logout All Sessions",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "{{tokenBearer}} {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout?flag=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"],
+              "query": [
+                {
+                  "key": "flag",
+                  "value": "all",
+                  "description": "When flag=all, updates credentials date on user to invalidate all active tokens"
+                }
+              ]
+            },
+            "description": "**Purpose**: Invalidate all sessions and tokens for the user by updating `credentials` timestamp.\n\n**Auth/Role**: Authenticated via `@authenticationGuard()`. Requires `authorization: {{tokenBearer}} {{accessToken}}`.\n\n**Query Parameters**:\n- `flag=all`\n\n**Preconditions**: Active authenticated session.\n\n**Expected Status**: 200 OK.\n\n**Cleanup**: Unsets `accessToken` and `refreshToken` from the environment."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.environment.unset(\"accessToken\");",
+                  "pm.environment.unset(\"refreshToken\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

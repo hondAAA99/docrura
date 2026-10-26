@@ -1,0 +1,106 @@
+{
+  "id": "e6a14d8a-784f-4d32-9cb1-9b1e8432a76b",
+  "name": "Docura Server Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "tokenBearer",
+      "value": "bearer",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userEmail",
+      "value": "testuser@example.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userPassword",
+      "value": "Password123!",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "userName",
+      "value": "John Doe",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userPhone",
+      "value": "+1234567890",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userGender",
+      "value": "male",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userAge",
+      "value": "1995-05-15",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "otpCode",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "newPassword",
+      "value": "NewSecurePassword456!",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "guestAccessToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "guestRefreshToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "guestConvertedEmail",
+      "value": "convertedguest@example.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "guestConvertedPhone",
+      "value": "+1987654321",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-10-26T03:30:00.000Z",
+  "_postman_exported_using": "Postman/10.0.0"
+}
+
